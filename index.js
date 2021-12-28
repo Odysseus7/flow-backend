@@ -27,9 +27,9 @@ app.use(cors());
 app.use("/api/v1/projects", projectsRouter);
 app.use("/api/v1/courses", coursesRouter);
 app.use("/api/v1/books", booksRouter);
-app.use("/api/v1/admin/login", loginRouter);
-app.use("/api/v1/admin/register", registerRouter);
-app.use("/api/v1/admin", adminPanelRouter);
+app.use("/admin/login", loginRouter);
+app.use("/admin/register", registerRouter);
+app.use("/admin", adminPanelRouter);
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);

@@ -37,11 +37,10 @@ router.post("/", async (req, res) => {
 
 		user.password = hash;
 
-		user.token = token;
-
-		user.save((err, saveduser) => {
+		user.save((err, savedUser) => {
 			if (!err) {
-				res.status(201).send("User successfully registered");
+				const { username, id } = user;
+				return res.status(200).json({ token: token, username, id });
 			}
 		});
 	} catch (err) {
