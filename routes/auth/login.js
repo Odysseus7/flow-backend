@@ -29,9 +29,10 @@ router.post("/", async (req, res) => {
 
 			return res.status(200).json({ token, username, id });
 		}
+
 		return res.status(400).send("Invalid Credentials");
 	} catch (err) {
-		console.log(err);
+		return res.status(500).send("An unexpected error occured.");
 	}
 });
 
