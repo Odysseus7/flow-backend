@@ -174,7 +174,7 @@ router.patch("/books/:id", authenticateToken, async (req, res) => {
 	if (status) {
 		try {
 			let doc = await Project.updateOne(
-				{ id: bookId },
+				{ _id: bookId },
 				{ status },
 				{
 					new: true,

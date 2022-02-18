@@ -10,4 +10,10 @@ router.get("/", async (req, res, next) => {
 	res.json(books);
 });
 
+router.get("/all", async (req, res, next) => {
+	const book = await Book.find();
+	res.setHeader("Content-Type", "application/json");
+	res.json(book);
+});
+
 module.exports = router;
