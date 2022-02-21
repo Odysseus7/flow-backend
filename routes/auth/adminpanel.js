@@ -2,12 +2,15 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const authenticateToken = require("../../middleware/authenticateToken");
+const bcrypt = require("bcrypt");
 require("../../models/Course");
 require("../../models/Project");
 require("../../models/Book");
+require("../../models/User");
 const Course = mongoose.model("courses");
 const Project = mongoose.model("projects");
 const Book = mongoose.model("books");
+const User = mongoose.model("users");
 
 router.patch("/courses/:id", authenticateToken, async (req, res) => {
 	const status = req.query.status;
@@ -173,7 +176,7 @@ router.patch("/books/:id", authenticateToken, async (req, res) => {
 
 	if (status) {
 		try {
-			let doc = await Project.updateOne(
+			let doc = await Book.updateOne(
 				{ _id: bookId },
 				{ status },
 				{
@@ -205,6 +208,35 @@ router.patch("/books/:id", authenticateToken, async (req, res) => {
 		return res.status(400).send("Book not found.");
 	} catch (error) {
 		return res.status(500).send("An unexpected error occured");
+	}
+});
+
+router.post("/users/:id", authenticateToken, async (req, res) => {
+	const { username, oldPassword, newPassword } = req.body;
+	const userId = req.params.id;
+
+	if (username !== req.user.username) {
+		return res.status(401).send("Invalid credentials");
+	}
+
+	try {
+		const user = await User.findOne({ _id: userId });
+		if (user && (await bcrypt.compare(oldPassword, user.password))) {
+			const salt = bcrypt.genSaltSync(10);
+			const hash = bcrypt.hashSync(newPassword, salt);
+
+			user.password = hash;
+			user
+				.save()
+				.then((savedUser) => {
+					return res.status(200).send("Password was changed");
+				})
+				.catch((error) => {
+					return res.status(500).send("An unexpected error occured");
+				});
+		}
+	} catch (error) {
+		return res.status(404).send("User not found");
 	}
 });
 
