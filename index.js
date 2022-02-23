@@ -38,7 +38,7 @@ app.use("/admin/projects", adminPanelProjectsRouter);
 app.use("/admin/books", adminPanelBooksRouter);
 
 app.listen(port, () => {
-	console.log(`Example app listening at http://localhost:${port}`);
+	console.log(`Portfolio application listening on port ${port}`);
 });
 
 module.exports = app;

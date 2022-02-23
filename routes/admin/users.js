@@ -7,31 +7,49 @@ const bcrypt = require("bcrypt");
 require("../../models/User");
 const User = mongoose.model("users");
 
+const AMOUNT_OF_SALT_ROUNDS = 10;
+
+function checkCurrentUser(givenUsername, existingUsername) {
+	return givenUsername === existingUsername;
+}
+
+async function comparePassword(user, givenOldPassword) {
+	existingPassword = user.password;
+	return user && (await bcrypt.compare(givenOldPassword, existingPassword));
+}
+
+function generatePasswordHash(password) {
+	const salt = bcrypt.genSaltSync(AMOUNT_OF_SALT_ROUNDS);
+	const hash = bcrypt.hashSync(password, salt);
+
+	return hash;
+}
+
 router.post("/:id", authenticateToken, async (req, res) => {
 	const { username, oldPassword, newPassword } = req.body;
 	const userId = req.params.id;
 
-	if (username !== req.user.username) {
-		return res.status(401).send("Invalid credentials");
-	}
-
 	try {
 		const user = await User.findOne({ _id: userId });
-		if (user && (await bcrypt.compare(oldPassword, user.password))) {
-			const salt = bcrypt.genSaltSync(10);
-			const hash = bcrypt.hashSync(newPassword, salt);
 
-			user.password = hash;
+		if (!checkCurrentUser(username, user.username)) {
+			return res.status(401).send("Invalid credentials");
+		}
+
+		if (comparePassword(user, oldPassword)) {
+			user.password = generatePasswordHash(newPassword);
+
 			user
 				.save()
-				.then((savedUser) => {
+				.then(() => {
 					return res.status(200).send("Password was changed");
 				})
-				.catch((error) => {
+				.catch(() => {
 					return res.status(500).send("An unexpected error occured");
 				});
 		}
 	} catch (error) {
+		console.log(error);
 		return res.status(404).send("User not found");
 	}
 });
