@@ -8,7 +8,7 @@ function authenticateToken(req, res, next) {
 	}
 
 	jwt.verify(token, process.env.TOKEN_KEY, (err, user) => {
-		if (err) return res.sendStatus(403);
+		if (err) console.log(err);
 		req.user = user;
 		next();
 	});
