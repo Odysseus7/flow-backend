@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+
 require("../../models/User");
 const User = mongoose.model("users");
+
+const auth = require("./globalFunctions");
 
 router.post("/", async (req, res) => {
 	try {
@@ -16,16 +17,9 @@ router.post("/", async (req, res) => {
 
 		const user = await User.findOne({ username });
 
-		if (user && (await bcrypt.compare(password, user.password))) {
-			const token = jwt.sign(
-				{ user_id: user._id, username },
-				process.env.TOKEN_KEY,
-				{
-					expiresIn: "2h",
-				}
-			);
-
+		if (user && (await auth.comparePassword(password, user.password))) {
 			const id = user._id;
+			const token = auth.generateToken(id, username);
 
 			return res.status(200).json({ token, username, id });
 		}

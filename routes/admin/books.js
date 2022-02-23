@@ -5,12 +5,20 @@ const authenticateToken = require("../../middleware/authenticateToken");
 require("../../models/Book");
 const Book = mongoose.model("books");
 
-router.post("/", authenticateToken, async (req, res, next) => {
+const STATUS_ACTIVE = "active";
+
+router.post("/", authenticateToken, async (req, res) => {
 	const { name, description, author, image, URL } = req.body;
-	const status = "active";
 
 	if ((name, description, author, image, URL)) {
-		const book = new Book({ name, description, author, image, URL, status });
+		const book = new Book({
+			name,
+			description,
+			author,
+			image,
+			URL,
+			STATUS_ACTIVE,
+		});
 
 		Book.findOne({ name: name }, (err, doc) => {
 			if (doc) {
